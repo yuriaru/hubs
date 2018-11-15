@@ -449,7 +449,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     remountUI({ presenceLogEntries });
     scene.emit(`presence-log-${entry.type}`);
 
-    // Fade out and then remove
+/*    // Fade out and then remove
     setTimeout(() => {
       entry.expired = true;
       remountUI({ presenceLogEntries });
@@ -459,6 +459,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         remountUI({ presenceLogEntries });
       }, 5000);
     }, 20000);
+    */
   };
 
   const messageDispatch = new MessageDispatch(scene, entryManager, hubChannel, addToPresenceLog, remountUI);

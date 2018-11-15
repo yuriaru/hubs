@@ -12,7 +12,7 @@ const emojiRegex = /(?:[\u2700-\u27bf]|(?:\ud83c[\udde6-\uddff]){2}|[\ud800-\udb
 const urlRegex = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&//=]*)$/;
 
 const messageBodyDom = body => {
-  // Support wrapping text in ` to get monospace, and multiline.
+  // Support wrapping text in ` to get monospace.
   const multiLine = body.split("\n").length > 1;
   const mono = body.startsWith("`") && body.endsWith("`");
   const messageBodyClasses = {
@@ -38,7 +38,6 @@ export function spawnChatMessage(body) {
     return;
   }
 
-  const isOneLine = body.split("\n").length === 1;
   const context = messageCanvas.getContext("2d");
   const emoji = toEmojis(body);
   const isEmoji =
@@ -56,7 +55,6 @@ export function spawnChatMessage(body) {
     <div
       className={classNames({
         [styles.presenceLogEntry]: !isEmoji,
-        [styles.presenceLogEntryOneLine]: !isEmoji && isOneLine,
         [styles.presenceLogEmoji]: isEmoji
       })}
     >
@@ -90,7 +88,6 @@ export function spawnChatMessage(body) {
 }
 
 export default function ChatMessage(props) {
-  const isOneLine = props.body.split("\n").length === 1;
 
   return (
     <div className={props.className}>
@@ -100,12 +97,10 @@ export default function ChatMessage(props) {
           onClick={() => spawnChatMessage(props.body)}
         />
       )}
-      <div className={isOneLine ? styles.messageWrap : styles.messageWrapMulti}>
-        <div className={styles.messageSource}>
-          <strong>{props.name}</strong>:
-        </div>
-        {messageBodyDom(props.body)}
+      <div className={styles.messageSource}>
+        <strong>{props.name}</strong>:
       </div>
+      {messageBodyDom(props.body)}
     </div>
   );
 }
