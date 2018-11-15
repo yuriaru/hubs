@@ -102,7 +102,7 @@ export default function ChatMessage(props) {
       )}
       <div className={isOneLine ? styles.messageWrap : styles.messageWrapMulti}>
         <div className={styles.messageSource}>
-          <b>{props.name}</b>:
+          <strong>{props.name}</strong>:
         </div>
         {messageBodyDom(props.body)}
       </div>
