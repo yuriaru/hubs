@@ -1,10 +1,50 @@
 import "./stats-plus.css";
 // Adapted from https://github.com/aframevr/aframe/blob/master/src/components/scene/stats.js
 
+let umwCount = 0;
+
 function createStats(scene) {
   const threeStats = new window.threeStats(scene.renderer);
   const aframeStats = new window.aframeStats(scene);
-  const plugins = scene.isMobile ? [] : [threeStats, aframeStats];
+  const hubsStats = new function() {
+    let stats = null;
+
+    return {
+      update: () => {
+        stats("umw").set(umwCount);
+        umwCount = 0;
+      },
+      start: () => {},
+      end: () => {},
+      attach: function(r) {
+        stats = r;
+
+        const f = THREE.Object3D.prototype.updateMatrixWorld;
+
+        THREE.Object3D.prototype.updateMatrixWorld = function(force) {
+          if (force || this.matrixWorldNeedsUpdate || this.matrixAutoUpdate) {
+            umwCount++;
+          }
+
+          f.apply(this, arguments);
+        };
+      },
+      values: {
+        umw: {
+          caption: "MatrixWorld"
+        }
+      },
+      groups: [
+        {
+          caption: "Hubs",
+          values: ["umw"]
+        }
+      ],
+      fractions: []
+    };
+  }();
+
+  const plugins = scene.isMobile ? [] : [threeStats, aframeStats, hubsStats];
   return new window.rStats({
     css: [], // Our stylesheet is injected from AFrame.
     values: {
