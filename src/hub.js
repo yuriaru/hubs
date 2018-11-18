@@ -93,6 +93,7 @@ import "./systems/camera-tools";
 import "./systems/userinput/userinput";
 import "./systems/camera-mirror";
 import "./systems/userinput/userinput-debug";
+import "./systems/world-update";
 
 import "./gltf-component-mappings";
 
