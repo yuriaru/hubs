@@ -109,6 +109,7 @@ const store = window.APP.store;
 const qs = new URLSearchParams(location.search);
 const isMobile = AFRAME.utils.device.isMobile();
 
+THREE.Object3D.DefaultMatrixAutoUpdate = false;
 window.APP.quality = qs.get("quality") || isMobile ? "low" : "high";
 
 import "aframe-physics-system";
@@ -334,6 +335,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   const scene = document.querySelector("a-scene");
+  scene.object3D.autoUpdate = false;
   scene.removeAttribute("keyboard-shortcuts"); // Remove F and ESC hotkeys from aframe
 
   const hubChannel = new HubChannel(store);
