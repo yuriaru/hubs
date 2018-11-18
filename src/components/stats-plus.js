@@ -6,7 +6,7 @@ let umwCount = 0;
 function createStats(scene) {
   const threeStats = new window.threeStats(scene.renderer);
   const aframeStats = new window.aframeStats(scene);
-  const hubsStats = new function() {
+  const customStats = new function() {
     let stats = null;
 
     return {
@@ -36,7 +36,7 @@ function createStats(scene) {
       },
       groups: [
         {
-          caption: "Hubs",
+          caption: "Three.js - Misc",
           values: ["umw"]
         }
       ],
@@ -44,7 +44,7 @@ function createStats(scene) {
     };
   }();
 
-  const plugins = scene.isMobile ? [] : [threeStats, aframeStats, hubsStats];
+  const plugins = scene.isMobile ? [] : [threeStats, aframeStats, customStats];
   return new window.rStats({
     css: [], // Our stylesheet is injected from AFrame.
     values: {
