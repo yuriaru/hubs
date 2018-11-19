@@ -65,12 +65,12 @@ AFRAME.registerSystem("world-update", {
         if (this.parent === null) {
           this.matrixWorld.copy(this.matrix);
         } else {
-          if (!this.matrixIsModified) {
+          /*if (!this.matrixIsModified) {
             this.matrixWorld = this.parent.matrixWorld;
-          } else {
-            this.matrixWorld = this.cachedMatrixWorld;
-            this.matrixWorld.multiplyMatrices(this.parent.matrixWorld, this.matrix);
-          }
+          } else {*/
+          this.matrixWorld = this.cachedMatrixWorld;
+          this.matrixWorld.multiplyMatrices(this.parent.matrixWorld, this.matrix);
+          //}
         }
 
         this.matrixWorldNeedsUpdate = false;

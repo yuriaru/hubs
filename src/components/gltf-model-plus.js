@@ -141,9 +141,9 @@ const inflateEntities = function(node, templates, isRoot, modelToWorldScale) {
     z: node.scale.z * (modelToWorldScale !== undefined ? modelToWorldScale : 1)
   });
 
-  node.matrixNeedsUpdate = true;
   node.matrixAutoUpdate = false;
   node.matrix.identity();
+  node.matrix.decompose(node.position, node.rotation, node.scale);
 
   el.setObject3D(node.type.toLowerCase(), node);
   if (entityComponents && "nav-mesh" in entityComponents) {
