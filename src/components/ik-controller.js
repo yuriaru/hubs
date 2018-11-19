@@ -175,6 +175,7 @@ AFRAME.registerComponent("ik-controller", {
     // and apply it to the head
     invHipsQuaternion.copy(hips.quaternion).inverse();
     head.quaternion.setFromRotationMatrix(headTransform).premultiply(invHipsQuaternion);
+    head.updateMatrix();
 
     hips.updateMatrix();
     rootToChest.multiplyMatrices(hips.matrix, chest.matrix);
@@ -208,6 +209,7 @@ AFRAME.registerComponent("ik-controller", {
 
       handObject3D.position.setFromMatrixPosition(handMatrix);
       handObject3D.rotation.setFromRotationMatrix(handMatrix);
+      handObject3D.matrixNeedsUpdate = true;
     }
   }
 });

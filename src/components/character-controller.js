@@ -212,6 +212,7 @@ AFRAME.registerComponent("character-controller", {
     }
     this._setNavNode(end);
     this.navNode = pathfinder.clampStep(start, end, this.navNode, this.navZone, this.navGroup, object3D.position);
+    object3D.matrixNeedsUpdate = true;
   },
 
   resetPositionOnNavMesh: function(position, navPosition, object3D) {

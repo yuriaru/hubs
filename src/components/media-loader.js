@@ -56,6 +56,7 @@ AFRAME.registerComponent("media-loader", {
       };
       center.addVectors(min, max).multiplyScalar(0.5 * scaleCoefficient);
       mesh.position.sub(center);
+      mesh.matrixNeedsUpdate = true;
       this.el.setAttribute("shape", {
         shape: "box",
         halfExtents: halfExtents
@@ -273,5 +274,6 @@ AFRAME.registerComponent("media-pager", {
 
   repositionToolbar() {
     this.toolbar.object3D.position.y = -this.el.getAttribute("shape").halfExtents.y - 0.2;
+    this.toolbar.object3D.matrixNeedsUpdate = true;
   }
 });

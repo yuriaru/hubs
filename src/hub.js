@@ -71,6 +71,7 @@ import "./components/emit-scene-event-on-remove";
 import "./components/stop-event-propagation";
 import "./components/animation";
 import "./components/follow-in-lower-fov";
+import "./components/matrix-auto-update";
 
 import ReactDOM from "react-dom";
 import React from "react";
@@ -189,6 +190,8 @@ function setupLobbyCamera() {
     const cameraPos = camera.object3D.position;
     camera.object3D.position.set(cameraPos.x, 2.5, cameraPos.z);
   }
+
+  camera.object3D.updateMatrix();
 
   camera.setAttribute("scene-preview-camera", "positionOnly: true; duration: 60");
   camera.components["pitch-yaw-rotator"].set(camera.object3D.rotation.x, camera.object3D.rotation.y);

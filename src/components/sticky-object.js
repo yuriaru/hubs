@@ -40,6 +40,7 @@ AFRAME.registerComponent("sticky-object", {
 
     this.locked = locked;
     this.el.setAttribute("body", { type: locked ? "static" : "dynamic" });
+    this.el.object3D.matrixAutoUpdate = !locked;
   },
 
   _onBodyLoaded() {
@@ -120,6 +121,7 @@ AFRAME.registerComponent("sticky-object-zone", {
     stickyObject.setLocked(true);
     stickyObject.el.object3D.position.copy(this.worldPosition);
     stickyObject.el.object3D.quaternion.copy(this.worldQuaternion);
+    stickyObject.el.object3D.matrixNeedsUpdate = true;
     stickyObject.el.body.collisionResponse = false;
     stickyObject.stuckTo = this;
 

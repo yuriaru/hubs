@@ -134,6 +134,7 @@ AFRAME.registerComponent("cursor-controller", {
       getLastWorldPosition(camera.object3D, cameraPos);
       cameraPos.y = cursor.object3D.position.y;
       cursor.object3D.lookAt(cameraPos);
+      cursor.object3D.matrixNeedsUpdate = true;
 
       const cursorColor = intersection || isGrabbing ? cursorColorHovered : cursorColorUnhovered;
 

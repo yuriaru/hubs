@@ -138,11 +138,14 @@ AFRAME.registerComponent("super-spawner", {
       entity.object3D.scale.copy(this.data.spawnScale);
     }
 
+    entity.matrixNeedsUpdate = true;
+
     this.activateCooldown();
 
     await waitForEvent("body-loaded", entity);
 
     getLastWorldPosition(hand.object3D, entity.object3D.position);
+    entity.matrixNeedsUpdate = true;
 
     if (!using6DOF) {
       for (let i = 0; i < this.data.grabEvents.length; i++) {
@@ -172,6 +175,7 @@ AFRAME.registerComponent("super-spawner", {
       this.data.useCustomSpawnRotation ? this.data.spawnRotation : this.el.object3D.rotation
     );
     entity.object3D.scale.copy(this.data.useCustomSpawnScale ? this.data.spawnScale : this.el.object3D.scale);
+    entity.object3D.matrixNeedsUpdate = true;
 
     await waitForEvent("body-loaded", entity);
 

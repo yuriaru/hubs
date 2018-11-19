@@ -140,6 +140,8 @@ AFRAME.registerComponent("position-at-box-shape-border", {
         this.target.scale.setScalar(finalScale);
       }
 
+      this.target.matrixNeedsUpdate = true;
+
       this.wasVisible = isVisible;
     };
   })()

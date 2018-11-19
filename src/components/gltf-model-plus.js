@@ -141,6 +141,7 @@ const inflateEntities = function(node, templates, isRoot, modelToWorldScale) {
     z: node.scale.z * (modelToWorldScale !== undefined ? modelToWorldScale : 1)
   });
 
+  node.matrixNeedsUpdate = true;
   node.matrixAutoUpdate = false;
   node.matrix.identity();
 

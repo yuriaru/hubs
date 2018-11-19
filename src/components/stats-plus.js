@@ -26,6 +26,9 @@ function createStats(scene) {
             umwCount++;
           }
 
+          if (umwCount === 10) {
+          }
+
           f.apply(this, arguments);
         };
       },
