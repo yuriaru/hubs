@@ -45,7 +45,7 @@ AFRAME.registerSystem("world-update", {
     };
 
     THREE.Object3D.prototype.updateMatrixWorld = function(force /*, frame*/) {
-      //if (!this.visible) return;
+      //if (!this.visible && this.hasHadFirstMatrixUpdate) return;
 
       if (!this.hasHadFirstMatrixUpdate) {
         this.updateMatrixFirst();
@@ -63,7 +63,7 @@ AFRAME.registerSystem("world-update", {
           /*if (!this.matrixIsModified) {
             this.matrixWorld = this.parent.matrixWorld;
           } else {*/
-          this.matrixWorld = this.cachedMatrixWorld;
+          //this.matrixWorld = this.cachedMatrixWorld;
           this.matrixWorld.multiplyMatrices(this.parent.matrixWorld, this.matrix);
           //}
         }

@@ -132,6 +132,7 @@ AFRAME.registerComponent("camera-tool", {
     return function(el) {
       targetPos.setFromMatrixPosition(el.object3D.matrixWorld);
       this.el.object3D.lookAt(targetPos);
+      this.el.object3D.matrixNeedsUpdate = true;
     };
   })(),
 
