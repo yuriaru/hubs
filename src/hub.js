@@ -11,6 +11,7 @@ import "three/examples/js/loaders/GLTFLoader";
 import "networked-aframe/src/index";
 import "naf-janus-adapter";
 import "aframe-teleport-controls";
+import "./components/teleport-controls-matrix-auto-update";
 import "aframe-billboard-component";
 import "aframe-rounded";
 import "webrtc-adapter";
