@@ -28,29 +28,25 @@ AFRAME.registerSystem("world-update", {
       this.matrixWorldNeedsUpdate = true;
     };
 
+    const updateMatrix = THREE.Object3D.prototype.updateMatrix;
     THREE.Object3D.prototype.updateMatrix = function() {
-      this.matrix.compose(
-        this.position,
-        this.quaternion,
-        this.scale
-      );
-      this.matrixWorldNeedsUpdate = true;
+      updateMatrix.apply(this, arguments);
 
       if (!this.matrixIsModified) {
         this.matrixIsModified = true;
       }
     };
 
-    THREE.Object3D.prototype.applyMatrix = function(matrix) {
-      this.matrix.multiplyMatrices(matrix, this.matrix);
-      this.matrix.decompose(this.position, this.quaternion, this.scale);
+    const applyMatrix = THREE.Object3D.prototype.applyMatrix;
+    THREE.Object3D.prototype.applyMatrix = function() {
+      applyMatrix.apply(this, arguments);
 
       if (!this.matrixIsModified) {
         this.matrixIsModified = true;
       }
     };
 
-    THREE.Object3D.prototype.updateMatrixWorld = function(force /*, frame*/) {
+    THREE.Object3D.prototype.updateMatrixWorld = function(force, frame, parentMatrixWorld) {
       if (!this.visible && this.hasHadFirstMatrixUpdate) return;
 
       if (!this.hasHadFirstMatrixUpdate) {
@@ -59,14 +55,21 @@ AFRAME.registerSystem("world-update", {
       } else if (this.matrixAutoUpdate || this.matrixNeedsUpdate) {
         this.updateMatrix();
         if (this.matrixNeedsUpdate) this.matrixNeedsUpdate = false;
+      } else {
+        /*if (Math.random() < 0.0001) {
+          this.updateMatrix();
+          console.log(this);
+        }*/
       }
 
       if (this.matrixWorldNeedsUpdate || force) {
         if (this.parent === null) {
           this.matrixWorld.copy(this.matrix);
         } else {
-          if (!this.matrixIsModified) {
-            this.matrixWorld = this.parent.matrixWorld;
+          // If the matrix is unmodified, it is the identity matrix,
+          // and hence we can use the parent's world matrix.
+          if (!this.matrixIsModified && parentMatrixWorld) {
+            this.matrixWorld = parentMatrixWorld;
           } else {
             this.matrixWorld = this.cachedMatrixWorld;
             this.matrixWorld.multiplyMatrices(this.parent.matrixWorld, this.matrix);
@@ -83,7 +86,7 @@ AFRAME.registerSystem("world-update", {
       const children = this.children;
 
       for (let i = 0, l = children.length; i < l; i++) {
-        children[i].updateMatrixWorld(force);
+        children[i].updateMatrixWorld(force, frame, this.matrixWorld);
       }
     };
   },
