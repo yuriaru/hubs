@@ -51,7 +51,7 @@ AFRAME.registerSystem("world-update", {
     };
 
     THREE.Object3D.prototype.updateMatrixWorld = function(force /*, frame*/) {
-      //if (!this.visible && this.hasHadFirstMatrixUpdate) return;
+      if (!this.visible && this.hasHadFirstMatrixUpdate) return;
 
       if (!this.hasHadFirstMatrixUpdate) {
         this.updateMatrixFirst();
@@ -65,12 +65,12 @@ AFRAME.registerSystem("world-update", {
         if (this.parent === null) {
           this.matrixWorld.copy(this.matrix);
         } else {
-          /*if (!this.matrixIsModified) {
+          if (!this.matrixIsModified) {
             this.matrixWorld = this.parent.matrixWorld;
-          } else {*/
-          this.matrixWorld = this.cachedMatrixWorld;
-          this.matrixWorld.multiplyMatrices(this.parent.matrixWorld, this.matrix);
-          //}
+          } else {
+            this.matrixWorld = this.cachedMatrixWorld;
+            this.matrixWorld.multiplyMatrices(this.parent.matrixWorld, this.matrix);
+          }
         }
 
         this.matrixWorldNeedsUpdate = false;
@@ -91,10 +91,9 @@ AFRAME.registerSystem("world-update", {
   _patchRenderFunc: function() {
     const renderer = this.el.renderer;
     const render = renderer.render;
-    const frame = this.frame;
 
     renderer.render = (scene, camera, renderTarget) => {
-      scene.updateMatrixWorld(true, frame);
+      scene.updateMatrixWorld(true, this.frame);
       render.call(renderer, scene, camera, renderTarget);
       this.frame++;
     };

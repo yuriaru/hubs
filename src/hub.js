@@ -132,6 +132,7 @@ import "./components/nav-mesh-helper";
 import "./components/tools/pen";
 import "./components/tools/networked-drawing";
 import "./components/tools/drawing-manager";
+import "threejs-positional-updatematrix";
 
 import registerNetworkSchemas from "./network-schemas";
 import registerTelemetry from "./telemetry";
