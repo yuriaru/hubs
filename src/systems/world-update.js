@@ -1,3 +1,9 @@
+const zeroPos = new THREE.Vector3(0, 0, 0);
+const zeroQuat = new THREE.Quaternion();
+const oneScale = new THREE.Vector3(1, 1, 1);
+const identity = new THREE.Matrix4();
+identity.identity();
+
 AFRAME.registerSystem("world-update", {
   init() {
     this._patchRenderFunc();
@@ -8,10 +14,44 @@ AFRAME.registerSystem("world-update", {
   _patchThreeJS: function() {
     //const frame = this.frame;
 
-    THREE.Object3D.prototype.updateMatrixWorld = function(force /*, frame*/) {
-      if (!this.visible) return;
+    THREE.Object3D.prototype.updateMatrixFirst = function() {
+      if (
+        !this.position.equals(zeroPos) ||
+        !this.quaternion.equals(zeroQuat) ||
+        !this.scale.equals(oneScale) ||
+        !this.matrix.equals(identity)
+      ) {
+        this.updateMatrix();
+      }
 
-      if (this.matrixAutoUpdate || this.matrixNeedsUpdate) {
+      this.hasHadFirstMatrixUpdate = true;
+      this.matrixWorldNeedsUpdate = true;
+    };
+
+    THREE.Object3D.prototype.updateMatrix = function() {
+      this.matrix.compose(
+        this.position,
+        this.quaternion,
+        this.scale
+      );
+      this.matrixWorldNeedsUpdate = true;
+      this.matrixIsModified = true;
+    };
+
+    THREE.Object3D.prototype.applyMatrix = function(matrix) {
+      this.matrix.multiplyMatrices(matrix, this.matrix);
+      this.matrix.decompose(this.position, this.quaternion, this.scale);
+      this.matrixIsModified = true;
+    };
+
+    THREE.Object3D.prototype.updateMatrixWorld = function(force /*, frame*/) {
+      //if (!this.visible) return;
+
+      if (!this.hasHadFirstMatrixUpdate) {
+        this.updateMatrixFirst();
+        this.cachedMatrixWorld = this.matrixWorld;
+        this.matrixNeedsUpdate = false;
+      } else if (this.matrixAutoUpdate || this.matrixNeedsUpdate) {
         this.updateMatrix();
         this.matrixNeedsUpdate = false;
       }
@@ -20,7 +60,12 @@ AFRAME.registerSystem("world-update", {
         if (this.parent === null) {
           this.matrixWorld.copy(this.matrix);
         } else {
+          /*if (!this.matrixIsModified) {
+            this.matrixWorld = this.parent.matrixWorld;
+          } else {*/
+          this.matrixWorld = this.cachedMatrixWorld;
           this.matrixWorld.multiplyMatrices(this.parent.matrixWorld, this.matrix);
+          //}
         }
 
         this.matrixWorldNeedsUpdate = false;
