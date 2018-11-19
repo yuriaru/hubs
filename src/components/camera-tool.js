@@ -186,13 +186,15 @@ AFRAME.registerComponent("camera-tool", {
         if (this.playerHead) {
           tempHeadScale.copy(this.playerHead.scale);
           this.playerHead.scale.set(1, 1, 1);
-          this.playerHead.updateMatrix();
+          this.playerHead.computeMatrixWorld();
+          this.playerHead.updateMatrixWorld(true);
         }
 
         if (this.playerHud) {
           tempHudScale.copy(this.playerHud.scale);
           this.playerHud.scale.set(0.001, 0.001, 0.001);
-          this.playerHud.updateMatrix();
+          this.playerHud.computeMatrixWorld();
+          this.playerHud.updateMatrixWorld(true);
         }
 
         const tmpVRFlag = renderer.vr.enabled;
@@ -206,11 +208,13 @@ AFRAME.registerComponent("camera-tool", {
         sceneEl.object3D.onAfterRender = tmpOnAfterRender;
         if (this.playerHead) {
           this.playerHead.scale.copy(tempHeadScale);
-          this.playerHead.updateMatrix();
+          this.playerHead.computeMatrixWorld();
+          this.playerHead.updateMatrixWorld(true);
         }
         if (this.playerHud) {
           this.playerHud.scale.copy(tempHudScale);
-          this.playerHud.updateMatrix();
+          this.playerHud.computeMatrixWorld();
+          this.playerHud.updateMatrixWorld(true);
         }
         this.lastUpdate = now;
         this.updateRenderTargetNextTick = false;

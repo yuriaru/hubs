@@ -46,30 +46,49 @@ AFRAME.registerSystem("world-update", {
       }
     };
 
-    THREE.Object3D.prototype.updateMatrixWorld = function(force, frame, parentMatrixWorld) {
-      if (!this.visible && this.hasHadFirstMatrixUpdate) return;
-
+    THREE.Object3D.prototype.computeMatrixWorld = function(skipParents) {
       if (!this.hasHadFirstMatrixUpdate) {
         this.updateMatrixFirst();
         this.cachedMatrixWorld = this.matrixWorld;
-      } else if (this.matrixAutoUpdate || this.matrixNeedsUpdate) {
+      } else {
         this.updateMatrix();
         if (this.matrixNeedsUpdate) this.matrixNeedsUpdate = false;
-      } else {
-        /*if (Math.random() < 0.0001) {
-          this.updateMatrix();
-          console.log(this);
-        }*/
       }
+
+      if (this.parent === null) {
+        this.matrixWorld.copy(this.matrix);
+      } else {
+        if (!skipParents) {
+          this.parent.computeMatrixWorld();
+        }
+
+        // If the matrix is unmodified, it is the identity matrix,
+        // and hence we can use the parent's world matrix.
+        if (!this.matrixIsModified) {
+          this.matrixWorld = this.parent.matrixWorld;
+        } else {
+          this.matrixWorld = this.cachedMatrixWorld;
+          this.matrixWorld.multiplyMatrices(this.parent.matrixWorld, this.matrix);
+        }
+      }
+
+      return this.matrixWorld;
+    };
+
+    THREE.Object3D.prototype.updateMatrixWorld = function(force, frame, updatedParentMatrixWorld) {
+      if (!this.visible && this.hasHadFirstMatrixUpdate) return;
+
+      this.computeMatrixWorld(true); // Do not recurse upwards, since this is recursing downwards
 
       if (this.matrixWorldNeedsUpdate || force) {
         if (this.parent === null) {
           this.matrixWorld.copy(this.matrix);
         } else {
           // If the matrix is unmodified, it is the identity matrix,
-          // and hence we can use the parent's world matrix.
-          if (!this.matrixIsModified && parentMatrixWorld) {
-            this.matrixWorld = parentMatrixWorld;
+          // and hence we can use the parent's world matrix if it has been
+          // updated by the caller.
+          if (!this.matrixIsModified && updatedParentMatrixWorld) {
+            this.matrixWorld = updatedParentMatrixWorld;
           } else {
             this.matrixWorld = this.cachedMatrixWorld;
             this.matrixWorld.multiplyMatrices(this.parent.matrixWorld, this.matrix);

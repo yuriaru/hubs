@@ -80,13 +80,15 @@ AFRAME.registerSystem("camera-mirror", {
       if (playerHead) {
         tempHeadScale.copy(playerHead.scale);
         playerHead.scale.set(1, 1, 1);
-        playerHead.updateMatrix();
+        playerHead.computeMatrixWorld();
+        playerHead.updateMatrixWorld(true);
       }
 
       if (playerHud) {
         tempHudScale.copy(playerHud.scale);
         playerHud.scale.set(0.001, 0.001, 0.001);
-        playerHead.updateMatrix();
+        playerHud.computeMatrixWorld();
+        playerHud.updateMatrixWorld(true);
       }
       renderer.vr.enabled = false;
       const tmpOnAfterRender = this.el.object3D.onAfterRender;
@@ -96,11 +98,13 @@ AFRAME.registerSystem("camera-mirror", {
       renderer.vr.enabled = wasVREnabled;
       if (playerHead) {
         playerHead.scale.copy(tempHeadScale);
-        playerHead.updateMatrix();
+        playerHead.computeMatrixWorld();
+        playerHead.updateMatrixWorld(true);
       }
       if (playerHud) {
         playerHud.scale.copy(tempHudScale);
-        playerHead.updateMatrix();
+        playerHud.computeMatrixWorld();
+        playerHud.updateMatrixWorld(true);
       }
     };
   }
