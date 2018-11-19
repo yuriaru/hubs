@@ -138,8 +138,6 @@ AFRAME.registerComponent("super-spawner", {
       entity.object3D.scale.copy(this.data.spawnScale);
     }
 
-    entity.matrixNeedsUpdate = true;
-
     this.activateCooldown();
 
     await waitForEvent("body-loaded", entity);

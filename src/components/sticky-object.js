@@ -40,7 +40,6 @@ AFRAME.registerComponent("sticky-object", {
 
     this.locked = locked;
     this.el.setAttribute("body", { type: locked ? "static" : "dynamic" });
-    this.el.object3D.matrixAutoUpdate = !locked;
   },
 
   _onBodyLoaded() {
