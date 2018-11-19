@@ -127,8 +127,6 @@ AFRAME.registerComponent("ik-controller", {
       .addVectors(this.chest.position, this.neck.position)
       .add(this.head.position)
       .negate();
-
-    console.log(this.invHipsToHeadVector);
   },
 
   tick(time, dt) {

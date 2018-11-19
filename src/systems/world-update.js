@@ -35,13 +35,19 @@ AFRAME.registerSystem("world-update", {
         this.scale
       );
       this.matrixWorldNeedsUpdate = true;
-      this.matrixIsModified = true;
+
+      if (!this.matrixIsModified) {
+        this.matrixIsModified = true;
+      }
     };
 
     THREE.Object3D.prototype.applyMatrix = function(matrix) {
       this.matrix.multiplyMatrices(matrix, this.matrix);
       this.matrix.decompose(this.position, this.quaternion, this.scale);
-      this.matrixIsModified = true;
+
+      if (!this.matrixIsModified) {
+        this.matrixIsModified = true;
+      }
     };
 
     THREE.Object3D.prototype.updateMatrixWorld = function(force /*, frame*/) {
@@ -50,22 +56,21 @@ AFRAME.registerSystem("world-update", {
       if (!this.hasHadFirstMatrixUpdate) {
         this.updateMatrixFirst();
         this.cachedMatrixWorld = this.matrixWorld;
-        this.matrixNeedsUpdate = false;
       } else if (this.matrixAutoUpdate || this.matrixNeedsUpdate) {
         this.updateMatrix();
-        this.matrixNeedsUpdate = false;
+        if (this.matrixNeedsUpdate) this.matrixNeedsUpdate = false;
       }
 
       if (this.matrixWorldNeedsUpdate || force) {
         if (this.parent === null) {
           this.matrixWorld.copy(this.matrix);
         } else {
-          /*if (!this.matrixIsModified) {
+          if (!this.matrixIsModified) {
             this.matrixWorld = this.parent.matrixWorld;
-          } else {*/
-          //this.matrixWorld = this.cachedMatrixWorld;
-          this.matrixWorld.multiplyMatrices(this.parent.matrixWorld, this.matrix);
-          //}
+          } else {
+            this.matrixWorld = this.cachedMatrixWorld;
+            this.matrixWorld.multiplyMatrices(this.parent.matrixWorld, this.matrix);
+          }
         }
 
         this.matrixWorldNeedsUpdate = false;

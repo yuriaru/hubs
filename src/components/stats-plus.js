@@ -18,19 +18,6 @@ function createStats(scene) {
       end: () => {},
       attach: function(r) {
         stats = r;
-
-        const f = THREE.Object3D.prototype.updateMatrixWorld;
-
-        THREE.Object3D.prototype.updateMatrixWorld = function(force) {
-          if (force || this.matrixWorldNeedsUpdate || this.matrixAutoUpdate) {
-            umwCount++;
-          }
-
-          if (umwCount === 10) {
-          }
-
-          f.apply(this, arguments);
-        };
       },
       values: {
         umw: {
