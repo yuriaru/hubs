@@ -16,6 +16,7 @@ import "aframe-rounded";
 import "webrtc-adapter";
 import "aframe-slice9-component";
 import "aframe-motion-capture-components";
+import "./threejs-positional-updatematrix";
 import "./utils/audio-context-fix";
 import { getReticulumFetchUrl } from "./utils/phoenix-utils";
 
