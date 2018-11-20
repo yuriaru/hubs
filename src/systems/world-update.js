@@ -3,6 +3,8 @@ const zeroQuat = new THREE.Quaternion();
 const oneScale = new THREE.Vector3(1, 1, 1);
 const identity = new THREE.Matrix4();
 identity.identity();
+let updateMatrixCount = 0;
+let updateMatrixWorldCount = 0;
 
 AFRAME.registerSystem("world-update", {
   init() {
@@ -14,23 +16,10 @@ AFRAME.registerSystem("world-update", {
   _patchThreeJS: function() {
     //const frame = this.frame;
 
-    THREE.Object3D.prototype.updateMatrixFirst = function() {
-      if (
-        !this.position.equals(zeroPos) ||
-        !this.quaternion.equals(zeroQuat) ||
-        !this.scale.equals(oneScale) ||
-        !this.matrix.equals(identity)
-      ) {
-        this.updateMatrix();
-      }
-
-      this.hasHadFirstMatrixUpdate = true;
-      this.matrixWorldNeedsUpdate = true;
-    };
-
     const updateMatrix = THREE.Object3D.prototype.updateMatrix;
     THREE.Object3D.prototype.updateMatrix = function() {
       updateMatrix.apply(this, arguments);
+      updateMatrixCount++;
 
       if (!this.matrixIsModified) {
         this.matrixIsModified = true;
@@ -46,11 +35,29 @@ AFRAME.registerSystem("world-update", {
       }
     };
 
-    THREE.Object3D.prototype.computeMatrixWorld = function(skipParents) {
+    // By the end of this function this.matrix reflects the updated local matrix
+    // and this.worldMatrix reflects the updated world matrix, taking into account
+    // parent matrices.
+    //
+    // Unless skipParents is true, all parent matricies are updated before
+    // updating this object's local and world matrix.
+    THREE.Object3D.prototype.updateMatrices = function(skipParents) {
       if (!this.hasHadFirstMatrixUpdate) {
-        this.updateMatrixFirst();
+        if (
+          !this.position.equals(zeroPos) ||
+          !this.quaternion.equals(zeroQuat) ||
+          !this.scale.equals(oneScale) ||
+          !this.matrix.equals(identity)
+        ) {
+          // Only update the matrix the first time if its non-identity, this way
+          // this.matrixIsModified will remain false until the default
+          // identity matrix is updated.
+          this.updateMatrix();
+        }
+
+        this.hasHadFirstMatrixUpdate = true;
         this.cachedMatrixWorld = this.matrixWorld;
-      } else {
+      } else if (this.matrixNeedsUpdate || this.matrixAutoUpdate) {
         this.updateMatrix();
         if (this.matrixNeedsUpdate) this.matrixNeedsUpdate = false;
       }
@@ -59,53 +66,38 @@ AFRAME.registerSystem("world-update", {
         this.matrixWorld.copy(this.matrix);
       } else {
         if (!skipParents) {
-          this.parent.computeMatrixWorld();
+          this.parent.updateMatrices();
         }
 
         // If the matrix is unmodified, it is the identity matrix,
-        // and hence we can use the parent's world matrix.
+        // and hence we can use the parent's world matrix directly.
+        //
+        // Note this assumes all callers will either not pass skipParents=true
+        // *or* will update the parent themselves beforehand as is done in
+        // updateMatrixWorld.
         if (!this.matrixIsModified) {
           this.matrixWorld = this.parent.matrixWorld;
         } else {
           this.matrixWorld = this.cachedMatrixWorld;
           this.matrixWorld.multiplyMatrices(this.parent.matrixWorld, this.matrix);
+          updateMatrixWorldCount++;
         }
       }
 
       return this.matrixWorld;
     };
 
-    THREE.Object3D.prototype.updateMatrixWorld = function(force, frame, updatedParentMatrixWorld) {
-      if (!this.visible && this.hasHadFirstMatrixUpdate) return;
+    // Computes this object's matrices and then the recursively computes the matrices
+    // of all the children.
+    THREE.Object3D.prototype.updateMatrixWorld = function(force) {
+      if (!this.visible && !force) return;
 
-      this.computeMatrixWorld(true); // Do not recurse upwards, since this is recursing downwards
-
-      if (this.matrixWorldNeedsUpdate || force) {
-        if (this.parent === null) {
-          this.matrixWorld.copy(this.matrix);
-        } else {
-          // If the matrix is unmodified, it is the identity matrix,
-          // and hence we can use the parent's world matrix if it has been
-          // updated by the caller.
-          if (!this.matrixIsModified && updatedParentMatrixWorld) {
-            this.matrixWorld = updatedParentMatrixWorld;
-          } else {
-            this.matrixWorld = this.cachedMatrixWorld;
-            this.matrixWorld.multiplyMatrices(this.parent.matrixWorld, this.matrix);
-          }
-        }
-
-        this.matrixWorldNeedsUpdate = false;
-
-        force = true;
-      }
-
-      // update children
+      this.updateMatrices(true); // Do not recurse upwards, since this is recursing downwards
 
       const children = this.children;
 
       for (let i = 0, l = children.length; i < l; i++) {
-        children[i].updateMatrixWorld(force, frame, this.matrixWorld);
+        children[i].updateMatrixWorld();
       }
     };
   },
@@ -115,7 +107,13 @@ AFRAME.registerSystem("world-update", {
     const render = renderer.render;
 
     renderer.render = (scene, camera, renderTarget) => {
+      updateMatrixCount = 0;
+      updateMatrixWorldCount = 0;
       scene.updateMatrixWorld(true, this.frame);
+      if (this.frame % 120 === 0) {
+        console.log(updateMatrixCount + " " + updateMatrixWorldCount);
+      }
+
       render.call(renderer, scene, camera, renderTarget);
       this.frame++;
     };

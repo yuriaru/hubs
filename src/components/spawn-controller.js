@@ -26,6 +26,7 @@ AFRAME.registerComponent("spawn-controller", {
     const spawnPoint = spawnPoints[spawnPointIndex];
 
     getLastWorldPosition(spawnPoint.object3D, this.el.object3D.position);
+
     this.el.object3D.rotation.copy(spawnPoint.object3D.rotation);
     this.el.object3D.matrixNeedsUpdate = true;
   }
