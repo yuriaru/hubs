@@ -130,6 +130,8 @@ export const addMedia = (src, template, contentOrigin, resolve = false, resize =
         entity.object3D.scale.setScalar(0.5);
         entity.matrixNeedsUpdate = true;
 
+        entity.removeAttribute("animation__spawn-loader");
+
         entity.setAttribute("animation__spawn-start", {
           property: "scale",
           delay: 50,

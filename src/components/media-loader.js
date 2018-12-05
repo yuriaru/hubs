@@ -93,6 +93,17 @@ AFRAME.registerComponent("media-loader", {
       this.loaderMixer = new THREE.AnimationMixer(mesh);
       this.loadingClip = this.loaderMixer.clipAction(loadingObject.animations[0]);
       this.loadingClip.play();
+
+      this.el.object3D.scale.setScalar(0.5);
+      this.el.object3D.scale.matrixNeedsUpdate = true;
+
+      this.el.setAttribute("animation__spawn-loader", {
+        property: "scale",
+        dur: 200,
+        from: { x: 0.5, y: 0.5, z: 0.5 },
+        to: { x: 1.0, y: 1.0, z: 1.0 },
+        easing: "easeInQuad"
+      });
     }
     this.el.setObject3D("mesh", mesh);
     this.hasBakedShapes = !!(this.el.body && this.el.body.shapes.length > 0);
