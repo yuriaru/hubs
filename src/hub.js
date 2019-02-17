@@ -109,6 +109,7 @@ import "./systems/userinput/userinput";
 import "./systems/camera-mirror";
 import "./systems/userinput/userinput-debug";
 import "./systems/frame-scheduler";
+import "./systems/freeze-menus";
 
 import "./gltf-component-mappings";
 

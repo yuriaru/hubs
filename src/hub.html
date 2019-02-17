@@ -146,7 +146,7 @@
 
                         <template data-name="Spine">
                             <a-entity personal-space-invader="radius: 0.2; useMaterial: true;" bone-visibility>
-                                <a-entity billboard matrix-auto-update visibility-while-frozen="withinDistance: 10;">
+                                <a-entity class="freeze-menu" billboard matrix-auto-update visibility-while-frozen="withinDistance: 10;">
                                     <a-entity hoverable mixin="rounded-text-button" block-button ui-class-while-frozen position="0 0 .35"> </a-entity>
                                     <a-entity text="value:Hide; width:2.5; align:center;" position="0 0 0.36"></a-entity>
                                     <a-entity hoverable mixin="rounded-text-button" visible-if-permitted="kick_users" kick-button ui-class-while-frozen position="0 -0.25 .35"> </a-entity>
@@ -295,7 +295,7 @@
                         segments-width="16"
                         segments-height="12"
                     ></a-sphere>
-                    <a-entity class="ui delete-button" visibility-while-frozen="withinDistance: 10;" mixin="button-container">
+                    <a-entity class="ui delete-button freeze-menu" visibility-while-frozen="withinDistance: 10;" mixin="button-container">
                         <a-entity mixin="rounded-text-button" remove-networked-object-button position="0 0 0"> </a-entity>
                         <a-entity text=" value:remove; width:2.5; align:center;" text-raycast-hack position="0 0 0.01"></a-entity>
                     </a-entity>
@@ -316,11 +316,11 @@
                     shape="shape: box; halfExtents: 0.22 0.145 0.1; offset: 0 0.02 0"
                     sticky-object="autoLockOnRelease: true; autoLockOnLoad: true; autoLockSpeedLimit: 0;"
                     super-networked-interactable="counter: #camera-counter;"
-                    position-at-box-shape-border="target:.camera-menu"
+                    position-at-box-shape-border="target:.freeze-menu"
                     set-yxz-order
                     auto-scale-cannon-physics-body
                 >
-                    <a-entity class="ui interactable-ui camera-menu" visibility-while-frozen="withinDistance: 10;" mixin="button-container" >
+                    <a-entity class="ui interactable-ui freeze-menu" visibility-while-frozen="withinDistance: 10;" mixin="button-container" >
                         <a-entity mixin="rounded-text-action-button" mirror-camera-button="labelSelector:.mirror-button-label;" position="0 0.125 0.01"> </a-entity>
                         <a-entity text=" value:mirror; width:2.5; align:center;" class="mirror-button-label" text-raycast-hack position="0 0.125 0.02"></a-entity>
                         <a-entity mixin="rounded-text-button" remove-networked-object-button position="0 -0.125 0.01"> </a-entity>

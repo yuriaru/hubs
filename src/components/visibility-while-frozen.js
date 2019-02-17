@@ -8,6 +8,10 @@ import { getLastWorldPosition } from "../utils/three-utils";
 AFRAME.registerComponent("visibility-while-frozen", {
   schema: {
     withinDistance: { type: "number" },
+
+    // true - visible when frozen, invisible when not frozen
+    // false - visible when not frozen, invisible when frozen
+    // null - never visible (used by menu-system) to mask out non-interacting items
     visible: { type: "boolean", default: true }
   },
 
@@ -56,7 +60,10 @@ AFRAME.registerComponent("visibility-while-frozen", {
 
     const isRotating = AFRAME.scenes[0].systems["rotate-selected-object"].rotating;
     const shouldBeVisible =
-      ((isFrozen && this.data.visible) || (!isFrozen && !this.data.visible)) && isWithinDistance && !isRotating;
+      this.data.visible !== null &&
+      (((isFrozen && this.data.visible) || (!isFrozen && this.data.visible === false)) &&
+        isWithinDistance &&
+        !isRotating);
 
     if (isVisible !== shouldBeVisible) {
       this.el.setAttribute("visible", shouldBeVisible);
