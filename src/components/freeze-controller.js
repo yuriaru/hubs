@@ -23,7 +23,9 @@ AFRAME.registerComponent("freeze-controller", {
   },
 
   tick: function() {
-    const userinput = AFRAME.scenes[0].systems.userinput;
+    const scene = this.el.sceneEl;
+    const userinput = scene.systems.userinput;
+    const entered = scene.is("entered");
     const ensureFrozen = userinput.get(paths.actions.ensureFrozen);
     const thaw = userinput.get(paths.actions.thaw);
     const toggleFreeze = userinput.get(paths.actions.toggleFreeze);
@@ -31,7 +33,7 @@ AFRAME.registerComponent("freeze-controller", {
     const toggleFreezeDueToInput =
       (this.el.is("frozen") && thaw) || (!this.el.is("frozen") && ensureFrozen) || toggleFreeze;
 
-    if (toggleFreezeDueToInput) {
+    if (toggleFreezeDueToInput && entered) {
       this.onToggle();
     }
   },
