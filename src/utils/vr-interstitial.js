@@ -1,4 +1,4 @@
-import { showFullScreenIfAvailable } from "./fullscreen";
+import { showFullScreenIfAvailable, exitFullscreen } from "./fullscreen";
 
 let _isIn2DInterstitial = false;
 const isMobileVR = AFRAME.utils.device.isMobileVR();
@@ -10,10 +10,16 @@ export function handleExitTo2DInterstitial(isLower) {
   _isIn2DInterstitial = true;
 
   if (isMobileVR) {
+    document.body.addEventListener(
+      "touchend",
+      () => {
+        showFullScreenIfAvailable();
+      },
+      { once: true }
+    );
+
     // Immersive browser, exit VR.
-    scene.exitVR().then(() => {
-      showFullScreenIfAvailable();
-    });
+    scene.exitVR();
   } else {
     // Non-immersive browser, show notice
     const vrNotice = document.querySelector(".vr-notice");
@@ -31,6 +37,7 @@ export function handleReEntryToVRFrom2DInterstitial() {
   document.querySelector(".vr-notice").object3D.visible = false;
 
   if (isMobileVR) {
+    exitFullscreen();
     const scene = document.querySelector("a-scene");
     scene.enterVR();
   }

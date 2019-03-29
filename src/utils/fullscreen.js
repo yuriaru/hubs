@@ -23,3 +23,11 @@ export function showFullScreenIfWasFullScreen() {
     screenfull.request();
   }
 }
+
+export function exitFullscreen() {
+  if (screenfull.isFullscreen) {
+    return screenfull.exit();
+  } else {
+    return Promise.resolve();
+  }
+}
