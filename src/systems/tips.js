@@ -40,7 +40,6 @@ const TIPS = {
       "object_rotate_button",
       "object_scale_button",
       "object_pin",
-      "invite",
       "pen_color",
       "pen_size"
     ]
@@ -56,15 +55,14 @@ const TIPS = {
       "object_recenter_button",
       "object_rotate_button",
       "object_scale_button",
-      "object_pin",
-      "invite"
+      "object_pin"
     ]
   },
   standalone: { top: [], bottom: [] }
 };
 
 // These tips, if closed, will only clear themselves, not all tips.
-const LOCAL_CLOSE_TIPS = ["invite", "object_pin"];
+const LOCAL_CLOSE_TIPS = ["object_pin"];
 
 let localStorageCache = null;
 let finishedScopes = {}; // Optimization, lets system skip scopes altogether once finished.
@@ -97,7 +95,7 @@ export const markTipFinished = tip => {
 export const handleTipClose = (fullTip, scope) => {
   const tip = fullTip.split(".")[1];
 
-  // Invite and pinning tips should be locally cleared, others should clear all remaining tips.
+  // pinning tips should be locally cleared, others should clear all remaining tips.
   const tips = LOCAL_CLOSE_TIPS.includes(tip) ? [tip] : platformTips[scope];
 
   for (let i = 0; i < tips.length; i++) {
@@ -152,12 +150,6 @@ const VALIDATORS = {
     if (userinput.activeSets.includes(sets.cursorHoldingPen)) return INVALID;
     if (scene.is("frozen") && userinput.activeSets.includes(sets.cursorHoveringOnInteractable)) return FINISH;
     return VALID;
-  },
-  invite: function(userinput, scene) {
-    if (userinput.activeSets.includes(sets.cursorHoldingPen)) return INVALID;
-    if (userinput.activeSets.includes(sets.cursorHoldingCamera)) return INVALID;
-    if (userinput.activeSets.includes(sets.cursorHoldingInteractable)) return INVALID;
-    return scene.is("copresent") ? FINISH : VALID;
   },
   object_grab: function(userinput, scene, mediaCounter) {
     if (scene.is("frozen")) return INVALID;
