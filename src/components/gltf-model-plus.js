@@ -53,7 +53,7 @@ function generateMeshBVH(object3D) {
       // we put this in a web worker)
       if (triCount > 1000 && triCount < 1000000) {
         // note that bounds tree construction creates an index as a side effect if one doesn't already exist
-        geo.boundsTree = new MeshBVH(obj.geometry, { strategy: 0, maxDepth: 30 });
+        geo.boundsTree = new MeshBVH(obj.geometry, { strategy: 1, maxDepth: 100, maxLeafTris: 1 });
       }
     }
   });
