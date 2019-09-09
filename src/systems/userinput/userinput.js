@@ -263,7 +263,8 @@ AFRAME.registerSystem("userinput", {
     nonVRGamepadMappings.set(GamepadDevice, gamepadBindings);
 
     const updateBindingsForVRMode = () => {
-      const inVRMode = this.el.sceneEl.is("vr-mode");
+      const scene = this.el.sceneEl;
+      const inVRMode = scene.is("vr-mode");
       const isMobile = AFRAME.utils.device.isMobile();
 
       if (inVRMode) {
@@ -308,6 +309,7 @@ AFRAME.registerSystem("userinput", {
     };
 
     const gamepadConnected = e => {
+      console.log("BPDEBUG GAMEPAD", e.gamepad.id);
       let gamepadDevice;
       for (let i = 0; i < this.activeDevices.items.length; i++) {
         const activeDevice = this.activeDevices.items[i];
@@ -316,18 +318,22 @@ AFRAME.registerSystem("userinput", {
           return; // multiple connect events without a disconnect event
         }
       }
+      const gamepadId = e.gamepad.id;
       // HACK Firefox Nightly bug causes corrupt gamepad names for OpenVR, so do startsWith
-      if (e.gamepad.id.startsWith("OpenVR Gamepad") || e.gamepad.id === "HTC Vive Focus Plus Controller") {
+      if (
+        gamepadId.startsWith("OpenVR Gamepad") ||
+        ["HTC Vive Focus Plus Controller", "htc-vive"].includes(gamepadId)
+      ) {
         gamepadDevice = new ViveControllerDevice(e.gamepad);
-      } else if (e.gamepad.id.startsWith("Oculus Touch")) {
+      } else if (gamepadId.startsWith("Oculus Touch") || gamepadId === "oculus-touch") {
         gamepadDevice = new OculusTouchControllerDevice(e.gamepad);
-      } else if (e.gamepad.id.startsWith("Spatial Controller")) {
+      } else if (gamepadId.startsWith("Spatial Controller") || gamepadId.startsWith("microsoft-")) {
         gamepadDevice = new WindowsMixedRealityControllerDevice(e.gamepad);
-      } else if (e.gamepad.id === "Oculus Go Controller") {
+      } else if (gamepadId === "Oculus Go Controller" || gamepadId === "oculus-go") {
         gamepadDevice = new OculusGoControllerDevice(e.gamepad);
-      } else if (e.gamepad.id === "Gear VR Controller" || e.gamepad.id === "HTC Vive Focus Controller") {
+      } else if (["Gear VR Controller", "HTC Vive Focus Controller", "samsung-gearvr"].includes(gamepadId)) {
         gamepadDevice = new GearVRControllerDevice(e.gamepad);
-      } else if (e.gamepad.id === "Daydream Controller") {
+      } else if (["Daydream Controller", "google-daydream"].includes(gamepadId)) {
         gamepadDevice = new DaydreamControllerDevice(e.gamepad);
       } else if (e.gamepad.mapping === "standard") {
         // Our XboxController device and bindings should be generic enough for most gamepads.
@@ -363,7 +369,20 @@ AFRAME.registerSystem("userinput", {
       gamepad && gamepadConnected({ gamepad });
     }
 
-    this.el.sceneEl.addEventListener("enter-vr", updateBindingsForVRMode);
+    const retrieveXRGamepads = ({ session }) => {
+      for (const inputSource of session.inputSources) {
+        inputSource.gamepad.hand = inputSource.handedness;
+        gamepadConnected({ gamepad: inputSource.gamepad });
+      }
+    };
+
+    this.el.sceneEl.addEventListener("enter-vr", () => {
+      if (window.hasNativeWebXRImplementation) {
+        this.el.sceneEl.xrSession.addEventListener("inputsourceschange", retrieveXRGamepads);
+        retrieveXRGamepads({ session: this.el.sceneEl.xrSession });
+      }
+      updateBindingsForVRMode();
+    });
     this.el.sceneEl.addEventListener("exit-vr", updateBindingsForVRMode);
 
     updateBindingsForVRMode();

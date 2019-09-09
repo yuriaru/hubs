@@ -28,7 +28,7 @@ export class OculusTouchControllerDevice {
 
     // wake the gamepad api up. otherwise it does not report touch controllers.
     // in chrome it still won't unless you enter vr.
-    navigator.getVRDisplays();
+    if (window.hasNativeWebVRImplementation) navigator.getVRDisplays();
 
     const buttonMaps = {
       left: leftOculusTouchButtonMap,
@@ -57,7 +57,7 @@ export class OculusTouchControllerDevice {
 
   write(frame) {
     if (!this.gamepad) return;
-    this.gamepad = navigator.getGamepads()[this.gamepad.index];
+    if (window.hasNativeWebVRImplementation) this.gamepad = navigator.getGamepads()[this.gamepad.index];
     if (!this.gamepad || !this.gamepad.connected) return;
 
     this.buttonMap.forEach(b => {
