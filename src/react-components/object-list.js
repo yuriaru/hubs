@@ -133,22 +133,22 @@ export default class ObjectList extends Component {
           AFRAME.scenes[0].systems["hubs-systems"].cameraSystem.inspect(el.object3D, 1.5, true);
         }}
       >
-        <div title={thumbnailTitle} className={styles.icon}>
+        <div title={thumbnailTitle} className={styles.objectListIcon}>
           <FontAwesomeIcon icon={getDisplayImage(el)} />
         </div>
-        <div className={classNames({ [styles.listItem]: true })}>
-          <div className={styles.presence}>
-            <p>{getDisplayString(el)}</p>
-          </div>
-        </div>
+        {/* <div className={classNames({ [styles.listItem]: true })}> */}
+        {/*   <div className={styles.presence}> */}
+        {/*     <p>{getDisplayString(el)}</p> */}
+        {/*   </div> */}
+        {/* </div> */}
       </div>
     );
   }
 
   renderExpandedList() {
     return (
-      <div className={styles.presenceList}>
-        <div className={styles.contents}>
+      <div className={styles.objectList}>
+        <div className={styles.thinContents}>
           <div className={styles.rows}>{this.state.filteredEntities.map(this.domForEntity.bind(this))}</div>
         </div>
       </div>

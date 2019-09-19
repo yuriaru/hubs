@@ -31,6 +31,15 @@
   pointer-events: auto;
 }
 
+:local(.thin-contents) {
+  background-color: white;
+  border-radius: 12px;
+  padding: 18px;
+  max-height: 75%;
+  overflow-y: auto;
+  pointer-events: auto;
+}
+
 :local(.rows) {
   display: flex;
   flex-direction: column;
@@ -55,7 +64,6 @@
   justify-content: space-between;
   align-items: center;
   margin: 0px 0;
-  padding: 0px 16px;
   &:hover{
     background-color: $action-color-light;
     color: white;

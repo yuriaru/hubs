@@ -6,6 +6,11 @@
   right: 16px;
 }
 
+:local(.object-list) {
+  @extend %drop-menu;
+  right: 138px;
+}
+
 :local(.attach-point) {
   @extend %attach-point;
   top: -5px;
@@ -50,6 +55,18 @@
     left: 2px;
     width: 24px;
     height: 24px;
+  }
+}
+
+:local(.object-list-icon) {
+  width: 100%;
+  position: relative;
+  margin: 0px 12px 0px 12px;
+
+  img {
+    position: absolute;
+    width: 48px;
+    height: 48px;
   }
 }
 
