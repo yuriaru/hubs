@@ -17,8 +17,38 @@
   bottom: 0px;
   right: 2px;
   padding: 4px 8px;
-  color: #aaa;
-  font-size: 10px;
+  color: #000000;
+  font-size: 60px;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+:global(.rs-fps-counter-2) {
+  font-family: monospace;
+  cursor: pointer;
+  position: absolute;
+  bottom: 220px;
+  right: 2px;
+  padding: 4px 8px;
+  color: #000000;
+  font-size: 60px;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+:global(.rs-canvas-size-counter) {
+  font-family: monospace;
+  cursor: pointer;
+  position: absolute;
+  bottom: 120px;
+  right: 2px;
+  padding: 4px 8px;
+  color: #000000;
+  font-size: 60px;
   -moz-user-select: none;
   -webkit-user-select: none;
   -ms-user-select: none;

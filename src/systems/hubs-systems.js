@@ -10,7 +10,7 @@ import { SuperSpawnerSystem } from "./super-spawner-system";
 import { HapticFeedbackSystem } from "./haptic-feedback-system";
 import { SoundEffectsSystem } from "./sound-effects-system";
 import { AdaptiveResolutionSystem } from "./adaptive-resolution-system";
-
+import { FPSEstimateSystem } from "./fps-estimate-system";
 import { BatchManagerSystem } from "./render-manager-system";
 import { LobbyCameraSystem } from "./lobby-camera-system";
 import { InteractionSfxSystem } from "./interaction-sfx-system";
@@ -39,12 +39,14 @@ AFRAME.registerSystem("hubs-systems", {
     this.cameraSystem = new CameraSystem(this.batchManagerSystem);
     this.drawingMenuSystem = new DrawingMenuSystem(this.el.sceneEl);
     this.adaptiveResolutionSystem = new AdaptiveResolutionSystem();
+    this.fpsEstimateSystem = new FPSEstimateSystem();
   },
 
   tick(t, dt) {
+    this.fpsEstimateSystem.tick(dt);
     const systems = AFRAME.scenes[0].systems;
     systems.userinput.tick2();
-    this.adaptiveResolutionSystem.tick(systems.userinput, this.el, t);
+    this.adaptiveResolutionSystem.tick(systems.userinput, this.el, t, this.fpsEstimateSystem.efps);
     systems.interaction.tick2();
     this.cursorTogglingSystem.tick(systems.interaction, systems.userinput, this.el);
     this.interactionSfxSystem.tick(systems.interaction, systems.userinput, this.soundEffectsSystem);

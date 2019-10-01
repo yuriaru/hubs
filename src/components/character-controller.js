@@ -169,9 +169,6 @@ AFRAME.registerComponent("character-controller", {
           this.accelerationInput.z + acc[1]
         );
       }
-      if (Math.abs(this.accelerationInput.x) > 0.001 || Math.abs(this.accelerationInput.z) > 0.001) {
-        this.timeOfLastMovement = t;
-      }
 
       pivotPos.copy(pivot.position);
       pivotPos.applyMatrix4(root.matrix);
@@ -190,6 +187,10 @@ AFRAME.registerComponent("character-controller", {
         this.velocity.y * distance * boost * this.charSpeed,
         this.velocity.z * distance * boost * this.charSpeed
       );
+
+      if (Math.abs(move.elements[12]) > 0.001 || Math.abs(move.elements[14]) > 0.001) {
+        this.timeOfLastMovement = t;
+      }
       yawMatrix.makeRotationAxis(rotationAxis, rotationDelta);
 
       // Translate to middle of playspace (player rig)
