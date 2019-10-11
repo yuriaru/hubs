@@ -3,7 +3,7 @@ import GIFWorker from "../workers/gifparsing.worker.js";
 import errorImageSrc from "!!url-loader!../assets/images/media-error.gif";
 import { paths } from "../systems/userinput/paths";
 import HLS from "hls.js/dist/hls.light.js";
-import { addAndArrangeMedia, createImageTexture } from "../utils/media-utils";
+import { addAndArrangeMedia, createImageTexture, createBasisTexture } from "../utils/media-utils";
 import { proxiedUrlFor } from "../utils/media-url-utils";
 import { buildAbsoluteURL } from "url-toolkit";
 import { SOUND_CAMERA_TOOL_TOOK_SNAPSHOT } from "../systems/sound-effects-system";
@@ -800,6 +800,8 @@ AFRAME.registerComponent("media-image", {
           let promise;
           if (contentType.includes("image/gif")) {
             promise = createGIFTexture(src);
+          } else if (contentType.includes("image/basis")) {
+            promise = createBasisTexture(src);
           } else if (contentType.startsWith("image/")) {
             promise = createImageTexture(src);
           } else {
@@ -850,7 +852,11 @@ AFRAME.registerComponent("media-image", {
 
     // We only support transparency on gifs. Other images will support cutout as part of batching, but not alpha transparency for now
     this.mesh.material.transparent =
-      !this.data.batch || texture == errorTexture || this.data.contentType.includes("image/gif");
+      !this.data.batch ||
+      texture == errorTexture ||
+      this.data.contentType.includes("image/gif") ||
+      (texture.image && texture.image.hasAlpha);
+
     this.mesh.material.map = texture;
     this.mesh.material.needsUpdate = true;
 
@@ -858,7 +864,7 @@ AFRAME.registerComponent("media-image", {
       scaleToAspectRatio(this.el, ratio);
     }
 
-    if (texture !== errorTexture && this.data.batch) {
+    if (texture !== errorTexture && this.data.batch && !texture.isCompressedTexture) {
       this.el.sceneEl.systems["hubs-systems"].batchManagerSystem.addObject(this.mesh);
     }
 
