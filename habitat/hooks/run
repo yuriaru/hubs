@@ -5,41 +5,52 @@ exec 2>&1
 set -e
 
 # Make a copy of the distribution for syncing, and inject all the configs.
-TEMP_DIST_PATH="{{ pkg.svc_var_path }}/dist"
-rm -rf $TEMP_DIST_PATH
-mkdir -p $TEMP_DIST_PATH
-cp -R {{ pkg.path }}/dist/* $TEMP_DIST_PATH
+TEMP_BUILD_PATH="{{ pkg.svc_var_path }}/build"
+rm -rf $TEMP_BUILD_PATH
+mkdir -p $TEMP_BUILD_PATH
 
-# Every config available to this package will be injected into the text assets if the asset
-# had the correct sha256sum as per the plan.sh build settings
+pushd {{ pkg.path }}
+cp -R . $TEMP_BUILD_PATH
+popd
 
-{{#each cfg.general ~}}
+pushd $TEMP_BUILD_PATH
 
-# HACK, need to special case base asset path in pages because of weirdness with trailing slash -- webpack
-# seems to gracefully handle the extra trailing slash when injected at build time on HTML tags.
-if [[ "{{ @key }}" == "base_assets_path" ]] ;
-then
-  find $TEMP_DIST_PATH -type f -name *.html -exec sed -i "s/$(echo "{{ @key }}" | sha256sum | cut -d' ' -f1)\//{{ strReplace this "/" "\\/" }}/g" {} \;
-  find $TEMP_DIST_PATH -type f -name *.css -exec sed -i "s/$(echo "{{ @key }}" | sha256sum | cut -d' ' -f1)\//{{ strReplace this "/" "\\/" }}/g" {} \;
-  find $TEMP_DIST_PATH -type f -name *.js -exec sed -i "s/$(echo "{{ @key }}" | sha256sum | cut -d' ' -f1)\//{{ strReplace this "/" "\\/" }}/g" {} \;
-else
-  find $TEMP_DIST_PATH -type f -name *.html -exec sed -i "s/$(echo "{{ @key }}" | sha256sum | cut -d' ' -f1)/{{ strReplace this "/" "\\/" }}/g" {} \;
-  find $TEMP_DIST_PATH -type f -name *.css -exec sed -i "s/$(echo "{{ @key }}" | sha256sum | cut -d' ' -f1)/{{ strReplace this "/" "\\/" }}/g" {} \;
-  find $TEMP_DIST_PATH -type f -name *.js -exec sed -i "s/$(echo "{{ @key }}" | sha256sum | cut -d' ' -f1)/{{ strReplace this "/" "\\/" }}/g" {} \;
-fi
+export DEFAULT_SCENE_SID="{{ cfg.general.default_scene_sid }}"
+export BASE_ASSETS_PATH="{{ cfg.general.base_assets_path }}"
+export RETICULUM_SERVER="{{ cfg.general.reticulum_server }}"
+export POSTGREST_SERVER="{{ cfg.general.postgrest_server }}"
+export ITA_SERVER="{{ cfg.general.ita_server }}"
+export THUMBNAIL_SERVER="{{ cfg.general.thumbnail_server }}"
+export CORS_PROXY_SERVER="{{ cfg.general.cors_proxy_server }}"
+export NON_CORS_PROXY_DOMAINS="{{ cfg.general.non_cors_proxy_domains }}"
+export SENTRY_DSN="{{ cfg.general.sentry_dsn }}"
+export GA_TRACKING_ID="{{ cfg.general.ga_tracking_id }}"
+export BUILD_VERSION="{{ pkg.version }}.$(echo "{{ pkg.prefix }}" | cut -d '/' -f 7)"
 
-{{/each}}
+PATH=$PATH:{{ pkgPathFor "core/git" }}/bin {{ pkgPathFor "core/node10" }}/bin/npm ci --verbose --no-progress
+{{ pkgPathFor "core/node10" }}/bin/npm run build
 
-# need to upload wasm blobs with wasm content type explicitly because, unlike all
-# other assets, AWS's built-in MIME type dictionary doesn't know about that one
+cd admin
+PATH=$PATH:{{ pkgPathFor "core/git" }}/bin {{ pkgPathFor "core/node10" }}/bin/npm ci --verbose --no-progress
+{{ pkgPathFor "core/node10" }}/bin/npm run build
+cp -R dist/* ../dist
+cd ..
+mkdir -p dist/pages
+mv dist/*.html dist/pages
+mv dist/hub.service.js dist/pages
+mv dist/manifest.webmanifest dist/pages
 
-if [[ "{{ cfg.deploy.type }}" == "s3" ]] ;
-then
-  {{ pkgPathFor "core/aws-cli" }}/bin/aws s3 sync --region {{ cfg.deploy.region }} --acl public-read --cache-control "max-age=31556926" --include "*" --exclude "*.wasm" "$TEMP_DIST_PATH/assets" "s3://{{ cfg.deploy.target }}/hubs/assets"
-  {{ pkgPathFor "core/aws-cli" }}/bin/aws s3 sync --region {{ cfg.deploy.region }} --acl public-read --cache-control "max-age=31556926" --exclude "*" --include "*.wasm" --content-type "application/wasm" "$TEMP_DIST_PATH/assets" "s3://{{ cfg.deploy.target }}/hubs/assets"
-  
-  {{ pkgPathFor "core/aws-cli" }}/bin/aws s3 sync --region {{ cfg.deploy.region }} --acl public-read --cache-control "no-cache" --delete "$TEMP_DIST_PATH/pages" "s3://{{ cfg.deploy.target }}/hubs/pages/latest"
-  {{ pkgPathFor "core/aws-cli" }}/bin/aws s3 sync --region {{ cfg.deploy.region }} --acl public-read --cache-control "no-cache" --delete "$TEMP_DIST_PATH/pages" "s3://{{ cfg.deploy.target }}/hubs/pages/releases/{{ pkg.version }}.{{ pkg.release }}"
-fi
+## need to upload wasm blobs with wasm content type explicitly because, unlike all
+## other assets, AWS's built-in MIME type dictionary doesn't know about that one
+#
+#if [[ "{{ cfg.deploy.type }}" == "s3" ]] ;
+#then
+#  {{ pkgPathFor "core/aws-cli" }}/bin/aws s3 sync --region {{ cfg.deploy.region }} --acl public-read --cache-control "max-age=31556926" --include "*" --exclude "*.wasm" "$TEMP_BUILD_PATH/dist/assets" "s3://{{ cfg.deploy.target }}/hubs/assets"
+#  {{ pkgPathFor "core/aws-cli" }}/bin/aws s3 sync --region {{ cfg.deploy.region }} --acl public-read --cache-control "max-age=31556926" --exclude "*" --include "*.wasm" --content-type "application/wasm" "$TEMP_BUILD_PATH/dist/assets" "s3://{{ cfg.deploy.target }}/hubs/assets"
+#  
+#  {{ pkgPathFor "core/aws-cli" }}/bin/aws s3 sync --region {{ cfg.deploy.region }} --acl public-read --cache-control "no-cache" --delete "$TEMP_BUILD_PATH/dist/pages" "s3://{{ cfg.deploy.target }}/hubs/pages/latest"
+#  {{ pkgPathFor "core/aws-cli" }}/bin/aws s3 sync --region {{ cfg.deploy.region }} --acl public-read --cache-control "no-cache" --delete "$TEMP_BUILD_PATH/dist/pages" "s3://{{ cfg.deploy.target }}/hubs/pages/releases/{{ pkg.version }}.{{ pkg.release }}"
+#fi
 
-exec sleep 999999999999
+popd
+#exec sleep 999999999999
