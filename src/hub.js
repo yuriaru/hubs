@@ -65,7 +65,7 @@ import "./components/visible-if-permitted";
 import "./components/visibility-on-content-type";
 import "./components/hide-when-pinned-and-forbidden";
 import "./components/visibility-while-frozen";
-import "./components/stats-plus";
+// import "./components/stats-plus";
 import "./components/networked-avatar";
 import "./components/media-views";
 import "./components/avatar-volume-controls";

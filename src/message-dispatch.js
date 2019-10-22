@@ -90,7 +90,7 @@ export default class MessageDispatch {
         physicsSystem.setDebug(!physicsSystem.debugEnabled);
         break;
       case "vrstats":
-        document.getElementById("stats").components["stats-plus"].toggleVRStats();
+        // document.getElementById("stats").components["stats-plus"].toggleVRStats();
         break;
       case "scene":
         if (args[0]) {
