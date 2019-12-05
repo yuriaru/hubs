@@ -113,7 +113,7 @@ module.exports = (env, argv) => ({
     host: process.env.HOST_IP || "0.0.0.0",
     public: `${host}:8080`,
     useLocalIp: true,
-    allowedHosts: [host],
+    allowedHosts: [host,'grid-hubs.rutgers.edu'],
     headers: {
       "Access-Control-Allow-Origin": "*"
     },
